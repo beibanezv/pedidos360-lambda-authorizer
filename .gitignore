@@ -4,6 +4,10 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+### Archivos generados que no deben versionarse ###
+/effective-pom
+/function.jar
+
 ### STS ###
 .apt_generated
 .classpath
