@@ -11,30 +11,48 @@ app:
   security:
     jwt:
       providers:
-        # accesos Azure
+        # ---------------------------------------------------------------------
+        # Microsoft Entra ID (Azure AD) - tenant del curso, tokens v1.0
+        # ---------------------------------------------------------------------
+        # OJO v1 vs v2: este tenant emite tokens version "1.0", cuyo emisor es
+        # https://sts.windows.net/<tenant>/  (CON barra final) y cuyo JWK Set
+        # esta en https://login.microsoftonline.com/<tenant>/discovery/keys.
+        # El material de clase traia los valores v2.0
+        # (login.microsoftonline.com/<tenant>/v2.0) porque ese es el ejemplo
+        # generico; con ellos NINGUN token real de este tenant valida.
+        #
+        # Los valores no son secretos: son identificadores publicos del tenant e
+        # iguales a los que lleva el frontend en environment.ts.
         - name: azure
-          jwk-set-uri: https://login.microsoftonline.com/e5372bf0-c5e3-4286-887c-79069f209c1f/discovery/v2.0/keys
+          jwk-set-uri: https://login.microsoftonline.com/e5372bf0-c5e3-4286-887c-79069f209c1f/discovery/keys
           issuers:
-            - https://login.microsoftonline.com/e5372bf0-c5e3-4286-887c-79069f209c1f/v2.0
-          # Azure usa el Application ID URI como "aud"
+            - https://sts.windows.net/e5372bf0-c5e3-4286-887c-79069f209c1f/
+          # Azure usa el Application ID URI como "aud". Se declaran las dos
+          # formas en que puede llegar: con y sin el prefijo "api://".
           audiences:
-            - 57750927-6116-478c-a047-d06caa8fcd00
-            - api://57750927-6116-478c-a047-d06caa8fcd00
+            - api://446c57cb-aba2-4b7a-ab01-6f2e6af7d35c
+            - 446c57cb-aba2-4b7a-ab01-6f2e6af7d35c
 
-        #Acceso AWS Cognito
+        # ---------------------------------------------------------------------
+        # AWS Cognito - user pool de la segunda via de login
+        # ---------------------------------------------------------------------
+        # El frontend de Cognito manda el ID token (trae el claim "email" que
+        # ms-carrito necesita para notificar la compra), pero el adaptador de
+        # abajo acepta igualmente el ACCESS token porque valida "aud" O
+        # "client_id": en Cognito el ID token lleva la audiencia en "aud" y el
+        # ACCESS token en "client_id", por diseno, para que uno no se pueda usar
+        # donde se espera el otro.
         - name: cognito
-          jwk-set-uri: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_t75i4QEQt/.well-known/jwks.json
+          jwk-set-uri: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_AU4jqskhP/.well-known/jwks.json
           issuers:
-            - https://cognito-idp.us-east-1.amazonaws.com/us-east-1_t75i4QEQt
-          # App Client ID del user pool. OJO: en Cognito este valor aparece en el
-          # claim "aud" del ID token, pero en el claim "client_id" del ACCESS token
-          # (por diseno, para que un access token no se pueda usar donde se espera
-          # un ID token). El authorizer acepta cualquiera de los dos.
-          #
-          # No se declara ningun rol por defecto: este authorizer solo comprueba
-          # que el token sea valido. Quien decide sobre roles es el backend.
+            - https://cognito-idp.us-east-1.amazonaws.com/us-east-1_AU4jqskhP
+          # App Client ID del user pool.
           audiences:
-            - dqp6h33dd0fr2sdei7ov9rb2a
+            - 5ikmrldrcrkejq5d4v6bqcjo8f
+        #
+        # No se declara ningun rol por defecto: este authorizer solo comprueba
+        # que el token sea valido. Quien decide sobre roles y scopes es el
+        # backend (ms-productos y ms-carrito), que vuelve a validar el token.
 
 logging:
   level:
