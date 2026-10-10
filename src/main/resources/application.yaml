@@ -43,12 +43,12 @@ app:
         # ACCESS token en "client_id", por diseno, para que uno no se pueda usar
         # donde se espera el otro.
         - name: cognito
-          jwk-set-uri: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_AU4jqskhP/.well-known/jwks.json
+          jwk-set-uri: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_A8lrPsDta/.well-known/jwks.json
           issuers:
-            - https://cognito-idp.us-east-1.amazonaws.com/us-east-1_AU4jqskhP
+            - https://cognito-idp.us-east-1.amazonaws.com/us-east-1_A8lrPsDta
           # App Client ID del user pool.
           audiences:
-            - 5ikmrldrcrkejq5d4v6bqcjo8f
+            - 2ba1fjeai3c2i77sb5dpd7j91m
         #
         # No se declara ningun rol por defecto: este authorizer solo comprueba
         # que el token sea valido. Quien decide sobre roles y scopes es el
